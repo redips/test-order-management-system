@@ -1,0 +1,220 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Order {{ order.orderNumber }} - Order Management System{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>Edit Order: {{ order.orderNumber }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="alertContainer"></div>
+
+                <form id="orderForm">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label for="orderNumber" class="form-label">Order Number *</label>
+                            <input type="text" class="form-control" id="orderNumber" value="{{ order.orderNumber }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="customerCode" class="form-label">Customer Code *</label>
+                            <input type="text" class="form-control" id="customerCode" value="{{ order.customerCode }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="customerName" class="form-label">Customer Name *</label>
+                            <input type="text" class="form-control" id="customerName" value="{{ order.customerName }}" required>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Products</h6>
+                        <button type="button" class="btn btn-sm btn-success" onclick="addProductRow()">
+                            <i class="bi bi-plus-circle me-1"></i>Add Product
+                        </button>
+                    </div>
+
+                    <div id="productsContainer">
+                        <!-- Product rows will be added here -->
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12 text-end">
+                            <h5>Total: <span id="totalAmount">€0.00</span></h5>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_order_show', {'id': order.id}) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Update Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    let productCounter = 0;
+    const existingProducts = {{ order.orderProducts|map(p => {
+        productCode: p.productCode,
+        productName: p.productName,
+        price: p.price,
+        quantity: p.quantity
+    })|json_encode|raw }};
+
+    function addProductRow(productData = null) {
+        productCounter++;
+        const container = document.getElementById('productsContainer');
+        const row = document.createElement('div');
+        row.className = 'row mb-3 product-row';
+        row.id = `product-${productCounter}`;
+        row.innerHTML = `
+            <div class="col-md-2">
+                <label class="form-label">Product Code *</label>
+                <input type="text" class="form-control product-code" value="${productData?.productCode || ''}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Product Name *</label>
+                <input type="text" class="form-control product-name" value="${productData?.productName || ''}" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Price *</label>
+                <input type="number" step="0.01" min="0" class="form-control product-price" value="${productData?.price || ''}" required onchange="calculateTotal()">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Quantity *</label>
+                <input type="number" min="1" class="form-control product-quantity" value="${productData?.quantity || 1}" required onchange="calculateTotal()">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Subtotal</label>
+                <input type="text" class="form-control product-subtotal" readonly value="€0.00">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">&nbsp;</label>
+                <button type="button" class="btn btn-danger w-100" onclick="removeProductRow(${productCounter})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(row);
+        calculateTotal();
+    }
+
+    function removeProductRow(id) {
+        const row = document.getElementById(`product-${id}`);
+        if (row) {
+            row.remove();
+            calculateTotal();
+        }
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.product-row').forEach(row => {
+            const price = parseFloat(row.querySelector('.product-price').value) || 0;
+            const quantity = parseInt(row.querySelector('.product-quantity').value) || 0;
+            const subtotal = price * quantity;
+            
+            row.querySelector('.product-subtotal').value = `€${subtotal.toFixed(2)}`;
+            total += subtotal;
+        });
+        
+        document.getElementById('totalAmount').textContent = `€${total.toFixed(2)}`;
+    }
+
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.appendChild(alert);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const products = [];
+        document.querySelectorAll('.product-row').forEach(row => {
+            products.push({
+                productCode: row.querySelector('.product-code').value,
+                productName: row.querySelector('.product-name').value,
+                price: row.querySelector('.product-price').value,
+                quantity: parseInt(row.querySelector('.product-quantity').value)
+            });
+        });
+
+        if (products.length === 0) {
+            showAlert('Please add at least one product', 'warning');
+            return;
+        }
+
+        const orderData = {
+            orderNumber: document.getElementById('orderNumber').value,
+            customerCode: document.getElementById('customerCode').value,
+            customerName: document.getElementById('customerName').value,
+            products: products
+        };
+
+        try {
+            const response = await fetch('/api/orders/{{ order.id }}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showAlert('Order updated successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/order/{{ order.id }}';
+                }, 1500);
+            } else {
+                showAlert(result.message || 'Error updating order', 'danger');
+                if (result.errors) {
+                    result.errors.forEach(error => {
+                        showAlert(error, 'danger');
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error updating order', 'danger');
+        }
+    });
+
+    // Load existing products
+    document.addEventListener('DOMContentLoaded', () => {
+        existingProducts.forEach(product => {
+            addProductRow(product);
+        });
+
+        if (existingProducts.length === 0) {
+            addProductRow();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: order_management_php
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - order_network
+    depends_on:
+      - database
+
+  nginx:
+    image: nginx:alpine
+    container_name: order_management_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - order_network
+    depends_on:
+      - php
+
+  database:
+    image: mysql:8.0
+    container_name: order_management_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: order_management
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - order_network
+
+networks:
+  order_network:
+    driver: bridge
+
+volumes:
+  db_data:

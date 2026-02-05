@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order {{ order.orderNumber }} - Print</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: white;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .print-header {
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .order-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .info-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+        .table thead {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .table tfoot {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="print-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="company-name">Order Management System</div>
+                    <div class="text-muted">Professional Order Processing</div>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted">Date: {{ "now"|date('Y-m-d') }}</div>
+                    <div class="text-muted">Time: {{ "now"|date('H:i:s') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-title">Order Details</div>
+
+        <div class="info-section">
+            <div class="info-row">
+                <span class="info-label">Order Number:</span>
+                <span>{{ order.orderNumber }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Customer Code:</span>
+                <span>{{ order.customerCode }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Customer Name:</span>
+                <span>{{ order.customerName }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Order Date:</span>
+                <span>{{ order.createdAt|date('Y-m-d H:i:s') }}</span>
+            </div>
+        </div>
+
+        <h5>Order Items</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th width="15%">Product Code</th>
+                    <th width="40%">Product Name</th>
+                    <th width="15%" class="text-end">Unit Price</th>
+                    <th width="10%" class="text-center">Quantity</th>
+                    <th width="20%" class="text-end">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in order.orderProducts %}
+                <tr>
+                    <td>{{ product.productCode }}</td>
+                    <td>{{ product.productName }}</td>
+                    <td class="text-end">€{{ product.price|number_format(2, '.', ',') }}</td>
+                    <td class="text-center">{{ product.quantity }}</td>
+                    <td class="text-end">€{{ product.subtotal|number_format(2, '.', ',') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end">TOTAL AMOUNT:</td>
+                    <td class="text-end">€{{ order.totalAmount|number_format(2, '.', ',') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>This is a computer-generated document. No signature is required.</p>
+        </div>
+
+        <div class="no-print text-center mt-4">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> Print Document
+            </button>
+            <a href="{{ path('app_order_show', {'id': order.id}) }}" class="btn btn-secondary">
+                Close
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
