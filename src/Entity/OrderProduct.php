@@ -31,7 +31,7 @@ class OrderProduct
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     #[Assert\NotBlank(message: 'Price is required')]
     #[Assert\Positive(message: 'Price must be positive')]
-    private ?string $price = null;
+    private ?float $price = null;
 
     #[ORM\Column]
     #[Assert\NotBlank(message: 'Quantity is required')]
@@ -84,12 +84,12 @@ class OrderProduct
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice(string $price): static
+    public function setPrice(float $price): static
     {
         $this->price = $price;
         return $this;

@@ -152,7 +152,7 @@
             products.push({
                 productCode: row.querySelector('.product-code').value,
                 productName: row.querySelector('.product-name').value,
-                price: row.querySelector('.product-price').value,
+                price: parseFloat(row.querySelector('.product-price').value),
                 quantity: parseInt(row.querySelector('.product-quantity').value)
             });
         });
@@ -170,6 +170,7 @@
         };
 
         try {
+            console.log(JSON.stringify(orderData));
             const response = await fetch('/api/orders', {
                 method: 'POST',
                 headers: {

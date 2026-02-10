@@ -2,6 +2,8 @@
 
 namespace App\Controller\Api;
 
+use App\Application\Factory\OrderFactory;
+use App\Dto\OrderCreateDto;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Repository\OrderRepository;
@@ -10,18 +12,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/orders', name: 'api_orders_')]
 class OrderApiController extends AbstractController
 {
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private OrderRepository $orderRepository,
         private ValidatorInterface $validator
-    ) {
-    }
+    ) {}
 
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(Request $request): JsonResponse
@@ -61,38 +64,16 @@ class OrderApiController extends AbstractController
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
+    public function create(
+        #[MapRequestPayload] OrderCreateDto $dto,
+        OrderFactory $orderFactory,
+    ): JsonResponse {
 
-        if (!$data) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Invalid JSON data'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        $order = new Order();
-        $order->setOrderNumber($data['orderNumber'] ?? '');
-        $order->setCustomerCode($data['customerCode'] ?? '');
-        $order->setCustomerName($data['customerName'] ?? '');
-
-        if (isset($data['products']) && is_array($data['products'])) {
-            foreach ($data['products'] as $productData) {
-                $orderProduct = new OrderProduct();
-                $orderProduct->setProductCode($productData['productCode'] ?? '');
-                $orderProduct->setProductName($productData['productName'] ?? '');
-                $orderProduct->setPrice($productData['price'] ?? '0');
-                $orderProduct->setQuantity($productData['quantity'] ?? 0);
-                $order->addOrderProduct($orderProduct);
-            }
-        }
-
-        $errors = $this->validator->validate($order);
+        $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
             $errorMessages = [];
             foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage();
+                $errorMessages[] = $error->getMessage() . ", prop. path: ". $error->getPropertyPath();
             }
             return $this->json([
                 'success' => false,
@@ -100,6 +81,13 @@ class OrderApiController extends AbstractController
                 'errors' => $errorMessages
             ], Response::HTTP_BAD_REQUEST);
         }
+
+        // foreach ($dto->orderProducts as $i => $p) {
+        //     dump($i, gettype($p), $p);
+        // }
+        // die;
+
+        $order = $orderFactory->createFromDto($dto);
 
         $this->orderRepository->save($order, true);
 
