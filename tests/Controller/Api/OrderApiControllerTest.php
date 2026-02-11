@@ -29,7 +29,7 @@ class OrderApiControllerTest extends WebTestCase
     public function testCreateOrder(): void
     {
         $orderData = [
-            'orderNumber' => 'API-TEST-' . time(),
+            'orderNumber' => 'API-TEST-'.time(),
             'customerCode' => 'API-CUST-001',
             'customerName' => 'API Test Customer',
             'products' => [
@@ -87,7 +87,7 @@ class OrderApiControllerTest extends WebTestCase
     {
         // First create an order
         $orderData = [
-            'orderNumber' => 'SHOW-TEST-' . time(),
+            'orderNumber' => 'SHOW-TEST-'.time(),
             'customerCode' => 'SHOW-CUST',
             'customerName' => 'Show Test Customer',
             'products' => [
@@ -136,7 +136,7 @@ class OrderApiControllerTest extends WebTestCase
     {
         // First create an order
         $orderData = [
-            'orderNumber' => 'UPDATE-TEST-' . time(),
+            'orderNumber' => 'UPDATE-TEST-'.time(),
             'customerCode' => 'UPDATE-CUST',
             'customerName' => 'Update Test Customer',
             'products' => [
@@ -196,7 +196,7 @@ class OrderApiControllerTest extends WebTestCase
     {
         // First create an order
         $orderData = [
-            'orderNumber' => 'DELETE-TEST-' . time(),
+            'orderNumber' => 'DELETE-TEST-'.time(),
             'customerCode' => 'DELETE-CUST',
             'customerName' => 'Delete Test Customer',
             'products' => [

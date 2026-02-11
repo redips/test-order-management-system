@@ -20,7 +20,7 @@ class OrderRepositoryTest extends KernelTestCase
     public function testSaveOrder(): void
     {
         $order = new Order();
-        $order->setOrderNumber('TEST-' . time());
+        $order->setOrderNumber('TEST-'.time());
         $order->setCustomerCode('CUST001');
         $order->setCustomerName('Test Customer');
 
@@ -40,7 +40,7 @@ class OrderRepositoryTest extends KernelTestCase
     public function testFindByFilters(): void
     {
         $order = new Order();
-        $order->setOrderNumber('FILTER-TEST-' . time());
+        $order->setOrderNumber('FILTER-TEST-'.time());
         $order->setCustomerCode('FILTER-CUST');
         $order->setCustomerName('Filter Test Customer');
 
@@ -55,7 +55,7 @@ class OrderRepositoryTest extends KernelTestCase
     public function testGetTotalAmount(): void
     {
         $order = new Order();
-        $order->setOrderNumber('TOTAL-TEST-' . time());
+        $order->setOrderNumber('TOTAL-TEST-'.time());
         $order->setCustomerCode('TOTAL-CUST');
         $order->setCustomerName('Total Test Customer');
 

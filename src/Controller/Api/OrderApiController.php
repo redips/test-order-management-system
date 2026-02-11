@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Application\Factory\OrderFactory;
 use App\Dto\OrderCreateDto;
+use App\Dto\OrderUpdateDto;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
 use App\Repository\OrderRepository;
@@ -41,7 +42,7 @@ class OrderApiController extends AbstractController
 
         return $this->json([
             'success' => true,
-            'data' => array_map(fn($order) => $this->serializeOrder($order), $orders)
+            'data' => array_map(fn ($order) => $this->serializeOrder($order), $orders)
         ]);
     }
 
@@ -50,22 +51,23 @@ class OrderApiController extends AbstractController
     {
         $order = $this->orderRepository->find($id);
 
-        if (!$order) {
+        if (! $order) {
             return $this->json([
                 'success' => false,
-                'message' => 'Order not found'
+                'message' => 'Order not found',
             ], Response::HTTP_NOT_FOUND);
         }
 
         return $this->json([
             'success' => true,
-            'data' => $this->serializeOrder($order)
+            'data' => $this->serializeOrder($order),
         ]);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(
-        #[MapRequestPayload] OrderCreateDto $dto,
+        #[MapRequestPayload] 
+        OrderCreateDto $dto,
         OrderFactory $orderFactory,
     ): JsonResponse {
 
@@ -73,7 +75,7 @@ class OrderApiController extends AbstractController
         if (count($errors) > 0) {
             $errorMessages = [];
             foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage() . ", prop. path: ". $error->getPropertyPath();
+                $errorMessages[] = $error->getMessage().", prop. path: ".$error->getPropertyPath();
             }
             return $this->json([
                 'success' => false,
@@ -99,52 +101,78 @@ class OrderApiController extends AbstractController
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
-    public function update(int $id, Request $request): JsonResponse
-    {
+    public function update(
+        int $id,
+        #[MapRequestPayload] OrderUpdateDto $dto,
+        OrderFactory $orderFactory,
+    ): JsonResponse {
         $order = $this->orderRepository->find($id);
 
-        if (!$order) {
+        // if (!$order) {
+        //     return $this->json([
+        //         'success' => false,
+        //         'message' => 'Order not found'
+        //     ], Response::HTTP_NOT_FOUND);
+        // }
+
+        // $data = json_decode($request->getContent(), true);
+
+        // if (!$data) {
+        //     return $this->json([
+        //         'success' => false,
+        //         'message' => 'Invalid JSON data'
+        //     ], Response::HTTP_BAD_REQUEST);
+        // }
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage() . ", prop. path: " . $error->getPropertyPath();
+            }
             return $this->json([
                 'success' => false,
-                'message' => 'Order not found'
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data = json_decode($request->getContent(), true);
-
-        if (!$data) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Invalid JSON data'
+                'message' => 'Validation failed',
+                'errors' => $errorMessages
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        if (isset($data['orderNumber'])) {
-            $order->setOrderNumber($data['orderNumber']);
-        }
-        if (isset($data['customerCode'])) {
-            $order->setCustomerCode($data['customerCode']);
-        }
-        if (isset($data['customerName'])) {
-            $order->setCustomerName($data['customerName']);
-        }
+        // foreach ($dto->orderProducts as $i => $p) {
+        //     dump($i, gettype($p), $p);
+        // }
+        // die;
 
-        if (isset($data['products']) && is_array($data['products'])) {
-            // Remove existing products
-            foreach ($order->getOrderProducts() as $product) {
-                $order->removeOrderProduct($product);
-            }
+        // dd($dto);
 
-            // Add new products
-            foreach ($data['products'] as $productData) {
-                $orderProduct = new OrderProduct();
-                $orderProduct->setProductCode($productData['productCode'] ?? '');
-                $orderProduct->setProductName($productData['productName'] ?? '');
-                $orderProduct->setPrice($productData['price'] ?? '0');
-                $orderProduct->setQuantity($productData['quantity'] ?? 0);
-                $order->addOrderProduct($orderProduct);
-            }
-        }
+        $order = $orderFactory->updateFromDto($order, $dto);
+
+
+        // if (isset($data['orderNumber'])) {
+        //     $order->setOrderNumber($data['orderNumber']);
+        // }
+        // if (isset($data['customerCode'])) {
+        //     $order->setCustomerCode($data['customerCode']);
+        // }
+        // if (isset($data['customerName'])) {
+        //     $order->setCustomerName($data['customerName']);
+        // }
+
+        // if (isset($data['products']) && is_array($data['products'])) {
+        //     // Remove existing products
+        //     foreach ($order->getOrderProducts() as $product) {
+        //         $order->removeOrderProduct($product);
+        //     }
+
+        //     // Add new products
+        //     foreach ($data['products'] as $productData) {
+        //         $orderProduct = new OrderProduct();
+        //         $orderProduct->setProductCode($productData['productCode'] ?? '');
+        //         $orderProduct->setProductName($productData['productName'] ?? '');
+        //         $orderProduct->setPrice($productData['price'] ?? '0');
+        //         $orderProduct->setQuantity($productData['quantity'] ?? 0);
+        //         $order->addOrderProduct($orderProduct);
+        //     }
+        // }
 
         $errors = $this->validator->validate($order);
         if (count($errors) > 0) {
