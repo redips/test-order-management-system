@@ -18,7 +18,7 @@ jobs:
         ports:
           - 3306:3306
         options: >
-          --wait 10
+          --wait health-cmd
 
     steps:
       - uses: actions/checkout@v2
