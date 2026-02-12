@@ -6,7 +6,6 @@ use App\Application\Factory\OrderFactory;
 use App\Dto\OrderCreateDto;
 use App\Dto\OrderUpdateDto;
 use App\Entity\Order;
-use App\Entity\OrderProduct;
 use App\Exception\OrderNotFoundException;
 use App\Repository\OrderRepository;
 use App\Service\OrderDeleteService;
@@ -18,17 +17,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Throwable;
 
 #[Route('/api/orders', name: 'api_orders_')]
 class OrderApiController extends AbstractController
 {
-
     public function __construct(
         private EntityManagerInterface $entityManager,
         private OrderRepository $orderRepository,
         private ValidatorInterface $validator
-    ) {}
+    ) {
+    }
 
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(Request $request): JsonResponse
@@ -45,7 +43,7 @@ class OrderApiController extends AbstractController
 
         return $this->json([
             'success' => true,
-            'data' => array_map(fn ($order) => $this->serializeOrder($order), $orders)
+            'data' => array_map(fn ($order) => $this->serializeOrder($order), $orders),
         ]);
     }
 
@@ -69,7 +67,7 @@ class OrderApiController extends AbstractController
 
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(
-        #[MapRequestPayload] 
+        #[MapRequestPayload]
         OrderCreateDto $dto,
         OrderFactory $orderFactory,
     ): JsonResponse {
@@ -78,12 +76,13 @@ class OrderApiController extends AbstractController
         if (count($errors) > 0) {
             $errorMessages = [];
             foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage().", prop. path: ".$error->getPropertyPath();
+                $errorMessages[] = $error->getMessage().', prop. path: '.$error->getPropertyPath();
             }
+
             return $this->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $errorMessages
+                'errors' => $errorMessages,
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -94,14 +93,15 @@ class OrderApiController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Order created successfully',
-            'data' => $this->serializeOrder($order)
+            'data' => $this->serializeOrder($order),
         ], Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
     public function update(
         int $id,
-        #[MapRequestPayload] OrderUpdateDto $dto,
+        #[MapRequestPayload]
+        OrderUpdateDto $dto,
         OrderFactory $orderFactory,
     ): JsonResponse {
         $order = $this->orderRepository->find($id);
@@ -110,12 +110,13 @@ class OrderApiController extends AbstractController
         if (count($errors) > 0) {
             $errorMessages = [];
             foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage() . ", prop. path: " . $error->getPropertyPath();
+                $errorMessages[] = $error->getMessage().', prop. path: '.$error->getPropertyPath();
             }
+
             return $this->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $errorMessages
+                'errors' => $errorMessages,
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -127,10 +128,11 @@ class OrderApiController extends AbstractController
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
+
             return $this->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $errorMessages
+                'errors' => $errorMessages,
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -139,7 +141,7 @@ class OrderApiController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Order updated successfully',
-            'data' => $this->serializeOrder($order)
+            'data' => $this->serializeOrder($order),
         ]);
     }
 
@@ -147,31 +149,28 @@ class OrderApiController extends AbstractController
     public function delete(
         int $id,
         OrderDeleteService $orderDeleteService,
-        ): JsonResponse
-    {
+    ): JsonResponse {
         // $order = $this->orderRepository->find($id);
 
         try {
             $orderDeleteService->deleteOrder($id);
-        } 
-        catch (OrderNotFoundException $e) {
+        } catch (OrderNotFoundException $e) {
             return $this->json([
                 'success' => false,
-                'message' => 'Order not found'
+                'message' => 'Order not found',
             ], Response::HTTP_NOT_FOUND);
-        }
-        catch (Throwable $e) {
+        } catch (\Throwable $e) {
             return $this->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        } 
+        }
 
         // $this->orderRepository->remove($order, true);
 
         return $this->json([
             'success' => true,
-            'message' => 'Order deleted successfully'
+            'message' => 'Order deleted successfully',
         ]);
     }
 
@@ -193,7 +192,7 @@ class OrderApiController extends AbstractController
                     'quantity' => $product->getQuantity(),
                     'subtotal' => $product->getSubtotal(),
                 ];
-            }, $order->getOrderProducts()->toArray())
+            }, $order->getOrderProducts()->toArray()),
         ];
     }
 }

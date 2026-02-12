@@ -1,25 +1,28 @@
 # Order Management System
 
 A comprehensive web application for order management built with Symfony backend and Twig templates with HTML, CSS, and JavaScript frontend. This application allows users to create, view, modify, delete orders, and generate printable order summaries.
+This is just a little demo project as test for a job interview, it's not intended to be complete in any part, it just shows the use of some OOP
+and good practices and patterns.  
+You should be crazy using this software in production, anyway I must warn that the project is just a try and is not intended to be a finished app,
+DO NOT USE IT IN PRODUCTION!!! 😅
 
 ## Features
 
-- ✅ **CRUD Operations**: Complete Create, Read, Update, Delete functionality for orders
-- ✅ **RESTful API**: Well-structured REST API endpoints for all order operations
-- ✅ **Search & Filter**: Advanced filtering by customer code, customer name, order number, and date range
-- ✅ **Printable Orders**: Generate professional PDF-ready printable order summaries
-- ✅ **Responsive UI**: Clean, intuitive Bootstrap 5 based user interface
-- ✅ **Dockerized**: Fully containerized with Docker Compose
-- ✅ **Tested**: Unit and integration tests for backend and frontend
-- ✅ **Code Quality**: Linting with PHP CS Fixer for code consistency
-- ✅ **Design Patterns**: MVC, Repository pattern, SOLID principles
+- **CRUD Operations**: Complete Create, Read, Update, Delete functionality for orders
+- **RESTful API**: Well-structured REST API endpoints for all order operations
+- **Search & Filter**: Advanced filtering by customer code, customer name, order number, and date range
+- **Responsive UI**: Clean, intuitive Bootstrap 5 based user interface
+- **Dockerized**: Fully containerized with Docker Compose
+- **Tested**: Unit and integration tests for backend and frontend
+- **Code Quality**: Linting with PHP CS Fixer for code consistency
+- **Design Patterns**: MVC, Repository pattern, SOLID principles
 
 ## Technology Stack
 
 ### Backend
 
-- **Framework**: Symfony 7.0
-- **Database**: MySQL 8.0
+- **Framework**: Symfony 7.4
+- **Database**: MariaDB 10.11
 - **ORM**: Doctrine ORM
 - **Testing**: PHPUnit 10.5
 - **Code Quality**: PHP CS Fixer
@@ -33,7 +36,7 @@ A comprehensive web application for order management built with Symfony backend 
 
 ### Infrastructure
 
-- **Containerization**: Docker & Docker Compose
+- **Containerization**: Docker & Docker Compose, having some issues with Docker compose in my local PC I used DDEV
 - **Web Server**: Nginx
 - **PHP**: PHP 8.2-FPM
 
@@ -58,6 +61,12 @@ cd order-management-system
 docker-compose up -d --build
 ```
 
+but if you are ok with DDEV, you can use:
+
+```bash
+ddev start
+```
+
 This will start three containers:
 
 - `order_management_php` - PHP 8.2-FPM
@@ -70,10 +79,22 @@ This will start three containers:
 docker-compose exec php composer install
 ```
 
+or with DDEV:
+
+```bash
+ddev composer install
+```
+
 ### 4. Run Database Migrations
 
 ```bash
 docker-compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+```
+
+or with DDEV:
+
+```bash
+ddev exec bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 ### 5. Access the Application
@@ -85,7 +106,7 @@ Open your browser and navigate to:
 
 ## Project Structure
 
-```
+```shell
 order-management-system/
 ├── config/                 # Symfony configuration files
 │   ├── packages/          # Bundle configurations
@@ -478,26 +499,6 @@ docker-compose logs database
 docker-compose exec php chown -R www-data:www-data var/
 docker-compose exec php chmod -R 777 var/
 ```
-
-## Production Deployment
-
-For production deployment:
-
-1. Update `.env` to production settings
-2. Set `APP_ENV=prod`
-3. Use proper database credentials
-4. Enable HTTPS
-5. Configure proper logging
-6. Set up monitoring
-7. Use environment variables for sensitive data
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
 
 ## License
 

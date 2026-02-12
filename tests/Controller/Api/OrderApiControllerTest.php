@@ -37,9 +37,9 @@ class OrderApiControllerTest extends WebTestCase
                     'productCode' => 'API-PROD-001',
                     'productName' => 'API Test Product',
                     'price' => '29.99',
-                    'quantity' => 2
-                ]
-            ]
+                    'quantity' => 2,
+                ],
+            ],
         ];
 
         $this->client->request(
@@ -52,7 +52,7 @@ class OrderApiControllerTest extends WebTestCase
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-        
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertArrayHasKey('data', $data);
@@ -65,7 +65,7 @@ class OrderApiControllerTest extends WebTestCase
             'orderNumber' => '',
             'customerCode' => '',
             'customerName' => '',
-            'products' => []
+            'products' => [],
         ];
 
         $this->client->request(
@@ -78,7 +78,7 @@ class OrderApiControllerTest extends WebTestCase
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-        
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertFalse($data['success']);
     }
@@ -95,9 +95,9 @@ class OrderApiControllerTest extends WebTestCase
                     'productCode' => 'SHOW-PROD',
                     'productName' => 'Show Test Product',
                     'price' => '19.99',
-                    'quantity' => 1
-                ]
-            ]
+                    'quantity' => 1,
+                ],
+            ],
         ];
 
         $this->client->request(
@@ -113,10 +113,10 @@ class OrderApiControllerTest extends WebTestCase
         $orderId = $createData['data']['id'];
 
         // Now test showing the order
-        $this->client->request('GET', '/api/orders/' . $orderId);
+        $this->client->request('GET', '/api/orders/'.$orderId);
 
         $this->assertResponseIsSuccessful();
-        
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertEquals($orderId, $data['data']['id']);
@@ -127,7 +127,7 @@ class OrderApiControllerTest extends WebTestCase
         $this->client->request('GET', '/api/orders/999999');
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-        
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertFalse($data['success']);
     }
@@ -144,9 +144,9 @@ class OrderApiControllerTest extends WebTestCase
                     'productCode' => 'UPDATE-PROD',
                     'productName' => 'Update Test Product',
                     'price' => '39.99',
-                    'quantity' => 1
-                ]
-            ]
+                    'quantity' => 1,
+                ],
+            ],
         ];
 
         $this->client->request(
@@ -171,14 +171,14 @@ class OrderApiControllerTest extends WebTestCase
                     'productCode' => 'NEW-PROD',
                     'productName' => 'New Product',
                     'price' => '49.99',
-                    'quantity' => 2
-                ]
-            ]
+                    'quantity' => 2,
+                ],
+            ],
         ];
 
         $this->client->request(
             'PUT',
-            '/api/orders/' . $orderId,
+            '/api/orders/'.$orderId,
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -186,7 +186,7 @@ class OrderApiControllerTest extends WebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertEquals('Updated Customer Name', $data['data']['customerName']);
@@ -204,9 +204,9 @@ class OrderApiControllerTest extends WebTestCase
                     'productCode' => 'DELETE-PROD',
                     'productName' => 'Delete Test Product',
                     'price' => '9.99',
-                    'quantity' => 1
-                ]
-            ]
+                    'quantity' => 1,
+                ],
+            ],
         ];
 
         $this->client->request(
@@ -222,15 +222,15 @@ class OrderApiControllerTest extends WebTestCase
         $orderId = $createData['data']['id'];
 
         // Now delete the order
-        $this->client->request('DELETE', '/api/orders/' . $orderId);
+        $this->client->request('DELETE', '/api/orders/'.$orderId);
 
         $this->assertResponseIsSuccessful();
-        
+
         $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertTrue($data['success']);
 
         // Verify it's deleted
-        $this->client->request('GET', '/api/orders/' . $orderId);
+        $this->client->request('GET', '/api/orders/'.$orderId);
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 }

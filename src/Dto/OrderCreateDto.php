@@ -2,14 +2,12 @@
 
 namespace App\Dto;
 
-
 use Symfony\Component\Serializer\Attribute\Context;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderCreateDto implements OrderDtoInterface
 {
-
     public function __construct(
         #[Assert\NotBlank]
         public string $orderNumber,
@@ -26,7 +24,8 @@ class OrderCreateDto implements OrderDtoInterface
         ])]
         #[Assert\Valid]
         public array $orderProducts = [],
-    ) {}
+    ) {
+    }
 
     public function getCustomerName(): string
     {

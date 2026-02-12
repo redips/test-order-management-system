@@ -4,10 +4,8 @@ namespace App\Dto;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 readonly class OrderProductCreateDto
 {
-
     public function __construct(
         #[Assert\NotBlank]
         public string $productCode,
@@ -17,5 +15,6 @@ readonly class OrderProductCreateDto
         public float $price,
         #[Assert\Positive]
         public int $quantity,
-    ) {}
+    ) {
+    }
 }

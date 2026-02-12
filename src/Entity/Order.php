@@ -56,6 +56,7 @@ class Order
     public function setOrderNumber(string $orderNumber): static
     {
         $this->orderNumber = $orderNumber;
+
         return $this;
     }
 
@@ -67,6 +68,7 @@ class Order
     public function setCustomerCode(string $customerCode): static
     {
         $this->customerCode = $customerCode;
+
         return $this;
     }
 
@@ -78,6 +80,7 @@ class Order
     public function setCustomerName(string $customerName): static
     {
         $this->customerName = $customerName;
+
         return $this;
     }
 
@@ -89,6 +92,7 @@ class Order
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -102,7 +106,7 @@ class Order
 
     public function addOrderProduct(OrderProduct $orderProduct): static
     {
-        if (!$this->orderProducts->contains($orderProduct)) {
+        if (! $this->orderProducts->contains($orderProduct)) {
             $this->orderProducts->add($orderProduct);
             $orderProduct->setOrder($this);
         }
@@ -127,13 +131,14 @@ class Order
         foreach ($this->orderProducts as $product) {
             $total += $product->getPrice() * $product->getQuantity();
         }
+
         return $total;
     }
 
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        if ($this->createdAt === null) {
+        if (null === $this->createdAt) {
             $this->createdAt = new \DateTime();
         }
     }

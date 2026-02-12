@@ -32,7 +32,7 @@ class OrderController extends AbstractController
     {
         $order = $this->orderRepository->find($id);
 
-        if (!$order) {
+        if (! $order) {
             throw $this->createNotFoundException('Order not found');
         }
 
@@ -46,7 +46,7 @@ class OrderController extends AbstractController
     {
         $order = $this->orderRepository->find($id);
 
-        if (!$order) {
+        if (! $order) {
             throw $this->createNotFoundException('Order not found');
         }
 
@@ -60,7 +60,7 @@ class OrderController extends AbstractController
     {
         $order = $this->orderRepository->find($id);
 
-        if (!$order) {
+        if (! $order) {
             throw $this->createNotFoundException('Order not found');
         }
 

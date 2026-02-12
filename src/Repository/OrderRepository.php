@@ -35,9 +35,8 @@ class OrderRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find orders with optional filters
+     * Find orders with optional filters.
      *
-     * @param array $filters
      * @return Order[]
      */
     public function findByFilters(array $filters = []): array
@@ -47,27 +46,27 @@ class OrderRepository extends ServiceEntityRepository
             ->addSelect('op')
             ->orderBy('o.createdAt', 'DESC');
 
-        if (!empty($filters['customerCode'])) {
+        if (! empty($filters['customerCode'])) {
             $qb->andWhere('o.customerCode LIKE :customerCode')
-               ->setParameter('customerCode', '%' . $filters['customerCode'] . '%');
+               ->setParameter('customerCode', '%'.$filters['customerCode'].'%');
         }
 
-        if (!empty($filters['customerName'])) {
+        if (! empty($filters['customerName'])) {
             $qb->andWhere('o.customerName LIKE :customerName')
-               ->setParameter('customerName', '%' . $filters['customerName'] . '%');
+               ->setParameter('customerName', '%'.$filters['customerName'].'%');
         }
 
-        if (!empty($filters['orderNumber'])) {
+        if (! empty($filters['orderNumber'])) {
             $qb->andWhere('o.orderNumber LIKE :orderNumber')
-               ->setParameter('orderNumber', '%' . $filters['orderNumber'] . '%');
+               ->setParameter('orderNumber', '%'.$filters['orderNumber'].'%');
         }
 
-        if (!empty($filters['dateFrom'])) {
+        if (! empty($filters['dateFrom'])) {
             $qb->andWhere('o.createdAt >= :dateFrom')
                ->setParameter('dateFrom', new \DateTime($filters['dateFrom']));
         }
 
-        if (!empty($filters['dateTo'])) {
+        if (! empty($filters['dateTo'])) {
             $dateTo = new \DateTime($filters['dateTo']);
             $dateTo->setTime(23, 59, 59);
             $qb->andWhere('o.createdAt <= :dateTo')

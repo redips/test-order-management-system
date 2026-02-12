@@ -5,8 +5,8 @@ namespace App\Dto;
 use App\Entity\Order;
 use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Context;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[Map(target: Order::class)]
 class OrderUpdateDto implements OrderDtoInterface
@@ -14,10 +14,8 @@ class OrderUpdateDto implements OrderDtoInterface
     public function __construct(
         #[Assert\NotBlank(allowNull: true)]
         public ?string $orderNumber = null,
-
         #[Assert\NotBlank(allowNull: true)]
         public ?string $customerCode = null,
-
         #[Assert\NotBlank(allowNull: true)]
         public ?string $customerName = null,
 
@@ -30,7 +28,8 @@ class OrderUpdateDto implements OrderDtoInterface
         ])]
         #[Assert\Valid]
         public array $orderProducts = [],
-    ) {}
+    ) {
+    }
 
     public function getCustomerName(): string
     {
@@ -51,5 +50,4 @@ class OrderUpdateDto implements OrderDtoInterface
     {
         return $this->orderProducts;
     }
-    
 }

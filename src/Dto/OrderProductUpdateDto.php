@@ -6,15 +6,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderProductUpdateDto
 {
-   public function __construct(
-      #[Assert\NotBlank]
-      public string $productCode,
-      #[Assert\NotBlank]
-      public string $productName,
-      #[Assert\Positive]
-      public float $price,
-      #[Assert\Positive]
-      public int $quantity,
-
-   ) {}
+    public function __construct(
+        #[Assert\NotBlank]
+        public string $productCode,
+        #[Assert\NotBlank]
+        public string $productName,
+        #[Assert\Positive]
+        public float $price,
+        #[Assert\Positive]
+        public int $quantity,
+    ) {
+    }
 }
