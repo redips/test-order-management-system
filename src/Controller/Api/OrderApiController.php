@@ -7,7 +7,9 @@ use App\Dto\OrderCreateDto;
 use App\Dto\OrderUpdateDto;
 use App\Entity\Order;
 use App\Entity\OrderProduct;
+use App\Exception\OrderNotFoundException;
 use App\Repository\OrderRepository;
+use App\Service\OrderDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Throwable;
 
 #[Route('/api/orders', name: 'api_orders_')]
 class OrderApiController extends AbstractController
@@ -84,11 +87,6 @@ class OrderApiController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        // foreach ($dto->orderProducts as $i => $p) {
-        //     dump($i, gettype($p), $p);
-        // }
-        // die;
-
         $order = $orderFactory->createFromDto($dto);
 
         $this->orderRepository->save($order, true);
@@ -108,22 +106,6 @@ class OrderApiController extends AbstractController
     ): JsonResponse {
         $order = $this->orderRepository->find($id);
 
-        // if (!$order) {
-        //     return $this->json([
-        //         'success' => false,
-        //         'message' => 'Order not found'
-        //     ], Response::HTTP_NOT_FOUND);
-        // }
-
-        // $data = json_decode($request->getContent(), true);
-
-        // if (!$data) {
-        //     return $this->json([
-        //         'success' => false,
-        //         'message' => 'Invalid JSON data'
-        //     ], Response::HTTP_BAD_REQUEST);
-        // }
-
         $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -137,44 +119,7 @@ class OrderApiController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        // foreach ($dto->orderProducts as $i => $p) {
-        //     dump($i, gettype($p), $p);
-        // }
-        // die;
-
-        //  dd($dto);
-
         $order = $orderFactory->updateFromDto($order, $dto);
-
-        // dd($order);
-
-
-        // if (isset($data['orderNumber'])) {
-        //     $order->setOrderNumber($data['orderNumber']);
-        // }
-        // if (isset($data['customerCode'])) {
-        //     $order->setCustomerCode($data['customerCode']);
-        // }
-        // if (isset($data['customerName'])) {
-        //     $order->setCustomerName($data['customerName']);
-        // }
-
-        // if (isset($data['products']) && is_array($data['products'])) {
-        //     // Remove existing products
-        //     foreach ($order->getOrderProducts() as $product) {
-        //         $order->removeOrderProduct($product);
-        //     }
-
-        //     // Add new products
-        //     foreach ($data['products'] as $productData) {
-        //         $orderProduct = new OrderProduct();
-        //         $orderProduct->setProductCode($productData['productCode'] ?? '');
-        //         $orderProduct->setProductName($productData['productName'] ?? '');
-        //         $orderProduct->setPrice($productData['price'] ?? '0');
-        //         $orderProduct->setQuantity($productData['quantity'] ?? 0);
-        //         $order->addOrderProduct($orderProduct);
-        //     }
-        // }
 
         $errors = $this->validator->validate($order);
         if (count($errors) > 0) {
@@ -199,18 +144,30 @@ class OrderApiController extends AbstractController
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(int $id): JsonResponse
+    public function delete(
+        int $id,
+        OrderDeleteService $orderDeleteService,
+        ): JsonResponse
     {
-        $order = $this->orderRepository->find($id);
+        // $order = $this->orderRepository->find($id);
 
-        if (!$order) {
+        try {
+            $orderDeleteService->deleteOrder($id);
+        } 
+        catch (OrderNotFoundException $e) {
             return $this->json([
                 'success' => false,
                 'message' => 'Order not found'
             ], Response::HTTP_NOT_FOUND);
         }
+        catch (Throwable $e) {
+            return $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } 
 
-        $this->orderRepository->remove($order, true);
+        // $this->orderRepository->remove($order, true);
 
         return $this->json([
             'success' => true,
