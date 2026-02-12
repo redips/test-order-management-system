@@ -2,14 +2,19 @@
 
 namespace App\Dto;
 
-use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderProductUpdateDto
 {
    public function __construct(
-      public ?string $orderNumber,
-      public ?string $customerCode,
-      public ?string $customerName,
-      public Collection $orderProducts,
+      #[Assert\NotBlank]
+      public string $productCode,
+      #[Assert\NotBlank]
+      public string $productName,
+      #[Assert\Positive]
+      public float $price,
+      #[Assert\Positive]
+      public int $quantity,
+
    ) {}
 }

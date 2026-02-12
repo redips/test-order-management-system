@@ -40,8 +40,17 @@ class OrderFactory {
 
     public function updateFromDto(Order $order, OrderUpdateDto $dto): Order 
     {
-        // Usa ObjectMapper per aggiornare solo i campi non-null
-        $this->objectMapper->map($dto, $order);
+        if ($dto->orderNumber !== null) {
+            $order->setOrderNumber($dto->orderNumber);
+        }
+        if ($dto->customerCode !== null) {
+            $order->setCustomerCode($dto->customerCode);
+        }
+        if ($dto->customerName !== null) {
+            $order->setCustomerName($dto->customerName);
+        }
+
+        $order->setCreatedAt(new DateTime());
         
         // Gestisci i prodotti separatamente
         if (!empty($dto->getOrderProducts())) {

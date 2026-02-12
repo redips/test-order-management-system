@@ -2,7 +2,6 @@
 
 namespace App\Dto;
 
-use Symfony\Component\TypeInfo\Type;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
